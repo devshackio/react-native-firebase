@@ -329,16 +329,15 @@ public class RNFirebaseStorage extends ReactContextBaseJavaModule {
     Log.i(TAG, "putFile: " + localPath + " to " + path);
 
     try {
-      Uri file;
+      Uri uri;
       if (localPath.startsWith("content://")) {
-        String realPath = getRealPathFromURI(localPath);
-        file = Uri.fromFile(new File(realPath));
+        uri = Uri.parse(localPath);
       } else {
-        file = Uri.fromFile(new File(localPath));
+        uri = Uri.fromFile(new File(localPath));
       }
 
       StorageMetadata md = buildMetadataFromMap(metadata);
-      UploadTask uploadTask = reference.putFile(file, md);
+      UploadTask uploadTask = reference.putFile(uri, md);
 
       // register observers to listen for when the download is done or if it fails
       uploadTask
