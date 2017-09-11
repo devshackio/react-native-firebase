@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.RuntimeException;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -329,16 +330,20 @@ public class RNFirebaseStorage extends ReactContextBaseJavaModule {
     Log.i(TAG, "putFile: " + localPath + " to " + path);
 
     try {
-      Uri file;
+      Uri uri;
       if (localPath.startsWith("content://")) {
-        String realPath = getRealPathFromURI(localPath);
-        file = Uri.fromFile(new File(realPath));
+        uri = Uri.parse(localPath);
       } else {
-        file = Uri.fromFile(new File(localPath));
+        uri = Uri.fromFile(new File(localPath));
+      }
+
+      if (uri == null) {
+        promiseRejectStorageException(promise, new RuntimeException("Problem finding File on device"));
+        return;
       }
 
       StorageMetadata md = buildMetadataFromMap(metadata);
-      UploadTask uploadTask = reference.putFile(file, md);
+      UploadTask uploadTask = reference.putFile(uri, md);
 
       // register observers to listen for when the download is done or if it fails
       uploadTask
@@ -382,6 +387,7 @@ public class RNFirebaseStorage extends ReactContextBaseJavaModule {
           }
         });
     } catch (Exception exception) {
+      Log.e(TAG, "exception: "+exception);
       promiseRejectStorageException(promise, exception);
     }
   }
@@ -413,6 +419,9 @@ public class RNFirebaseStorage extends ReactContextBaseJavaModule {
       int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
       cursor.moveToFirst();
       return cursor.getString(column_index);
+    } catch (Exception err) {
+      Log.e(TAG, "Exception in getRealPathFromURI.  "+err);
+      return null;
     } finally {
       if (cursor != null) {
         cursor.close();
@@ -633,8 +642,9 @@ public class RNFirebaseStorage extends ReactContextBaseJavaModule {
             break;
         }
       } else {
+        Log.e(TAG, "Unknown exception: "+exception);
         code = "storage/unknown";
-        message = "An unknown error has occurred.";
+        message = message != null ? message : "An unknown error has occurred.";
       }
     } finally {
       promise.reject(code, message, exception);
