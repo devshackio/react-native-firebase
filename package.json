@@ -1,5 +1,5 @@
 {
-  "name": "react-native-firebase",
+  "name": "@devshack/react-native-firebase",
   "version": "4.2.0",
   "author": "Invertase <contact@invertase.io> (http://invertase.io)",
   "description": "A well tested, feature rich Firebase implementation for React Native, supporting iOS & Android. Individual module support for Admob, Analytics, Auth, Crash Reporting, Cloud Firestore, Database, Dynamic Links, Functions, Messaging (FCM), Remote Config, Storage and more.",
@@ -16,8 +16,7 @@
     "format": "npm run format:assets && npm run lint -- --fix",
     "lint": "eslint ./lib ./tests/src ./tests/lib",
     "precommit": "lint-staged",
-    "prepublish": "npm run clean && npm run build",
-    "postinstall": "postinstall-build dist && opencollective postinstall || exit 0",
+    "prepublishOnly": "npm run clean && npm run build",
     "test-cli": "node ./bin/test.js",
     "tests-packager": "cd tests && npm run start",
     "tests-npm-install": "cd tests && npm install",
@@ -73,8 +72,6 @@
     "wml": "0.0.82"
   },
   "dependencies": {
-    "opencollective": "^1.0.3",
-    "postinstall-build": "^5.0.1",
     "prop-types": "^15.6.1"
   },
   "rnpm": {
